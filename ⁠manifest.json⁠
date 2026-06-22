@@ -1,0 +1,22 @@
+{
+  "name": "자습 집중 도우미",
+  "short_name": "자습",
+  "description": "공부 목표, 타이머, AI 추천, 음성 녹음을 한 곳에",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#faf7f2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
