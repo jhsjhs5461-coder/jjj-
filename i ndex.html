@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="자습 도우미">
+<meta name="theme-color" content="#faf7f2">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>자습 집중 도우미</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 배경 레이어 -->
+<div id="bg-overlay"></div>
+<div id="bg-blur"></div>
+<input type="file" id="bg-input" accept="image/*" style="display:none">
+
+<div id="app">
+
+  <!-- 헤더 -->
+  <header class="app-header">
+    <div class="app-title">자습 집중 도우미</div>
+    <div class="header-right">
+      <button class="btn-bg" onclick="openBgPicker()" title="배경 바꾸기">🖼️</button>
+    </div>
+  </header>
+
+  <!-- 탭 바 -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="calendar" onclick="switchTab('calendar')">
+      <span class="tab-icon">📅</span>캘린더
+    </button>
+    <button class="tab-btn" data-tab="ai" onclick="switchTab('ai')">
+      <span class="tab-icon">✨</span>AI 추천
+    </button>
+    <button class="tab-btn" data-tab="timer" onclick="switchTab('timer')">
+      <span class="tab-icon">⏱️</span>타이머
+    </button>
+    <button class="tab-btn" data-tab="voice" onclick="switchTab('voice')">
+      <span class="tab-icon">🎙️</span>음성
+    </button>
+  </nav>
+
+  <!-- ── 캘린더 탭 ── -->
+  <div class="page active" id="page-calendar">
+
+    <div class="card">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="calYear=(calMonth===0?(calYear-1):calYear);calMonth=(calMonth===0?11:calMonth-1);renderCalendar()">‹</button>
+        <div class="cal-month-title" id="cal-month-title"></div>
+        <button class="cal-nav-btn" onclick="calYear=(calMonth===11?(calYear+1):calYear);calMonth=(calMonth===11?0:calMonth+1);renderCalendar()">›</button>
+      </div>
+      <div class="calendar-grid" id="cal-grid"></div>
+    </div>
+
+    <div class="card">
+      <div class="todo-date-label" id="todo-date-label"></div>
+      <div class="todo-input-row">
+        <input class="input" id="todo-input" placeholder="공부 목표 입력" maxlength="60"
+          onkeydown="if(event.key==='Enter')addTodo()">
+        <button class="btn btn-primary" onclick="addTodo()" style="white-space:nowrap;padding:12px 18px;">추가</button>
+      </div>
+      <div id="todo-list"></div>
+    </div>
+
+  </div>
+
+  <!-- ── AI 추천 탭 ── -->
+  <div class="page" id="page-ai">
+
+    <div class="card">
+      <div class="card-label"><span class="ai-dot" id="ai-dot"></span>오늘 공부 순서 추천</div>
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;line-height:1.6;">
+        캘린더에 입력한 오늘 목표를 바탕으로 AI가 효율적인 공부 순서를 추천해줘요.
+      </p>
+      <button class="btn btn-primary" onclick="fetchAIRecommend()" style="width:100%;margin-bottom:16px;">
+        ✨ 오늘 공부 순서 추천받기
+      </button>
+      <div class="ai-result" id="ai-result">버튼을 눌러 AI 추천을 받아봐요</div>
+    </div>
+
+  </div>
+
+  <!-- ── 타이머 탭 ── -->
+  <div class="page" id="page-timer">
+
+    <div class="card">
+      <div class="card-label">공부 시간 설정</div>
+      <div class="timer-presets">
+        <button class="preset-btn active" onclick="setPreset(25)">25분</button>
+        <button class="preset-btn" onclick="setPreset(45)">45분</button>
+        <button class="preset-btn" onclick="setPreset(60)">1시간</button>
+        <button class="preset-btn" onclick="setPreset(90)">90분</button>
+      </div>
+      <div class="custom-time">
+        <input class="time-num" id="t-min" type="number" min="0" max="180" value="25"
+          oninput="if(!timerRunning&&!timerStarted){timerTotal=getInputSecs();timerLeft=timerTotal;updateTimerDisplay()}">
+        <span class="time-sep">:</span>
+        <input class="time-num" id="t-sec" type="number" min="0" max="59" value="0"
+          oninput="if(!timerRunning&&!timerStarted){timerTotal=getInputSecs();timerLeft=timerTotal;updateTimerDisplay()}">
+        <span style="font-size:13px;color:var(--text-muted)">분 · 초</span>
+      </div>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <div class="progress-ring-wrap">
+        <svg class="progress-ring" width="160" height="160" viewBox="0 0 160 160">
+          <circle class="ring-bg" cx="80" cy="80" r="60"/>
+          <circle class="ring-fill" id="ring-fill" cx="80" cy="80" r="60"/>
+        </svg>
+      </div>
+      <div class="timer-display" id="timer-display">25:00</div>
+      <div class="timer-btns">
+        <button class="btn btn-ghost" id="btn-reset" onclick="timerReset()">초기화</button>
+        <button class="btn btn-primary" id="btn-start" onclick="timerStart()">시작</button>
+        <button class="btn btn-ghost" id="btn-pause" onclick="timerPause()" disabled>일시정지</button>
+      </div>
+    </div>
+
+    <!-- 타이머 완료 AI 요약 -->
+    <div class="card" id="timer-summary" style="display:none;">
+      <div class="card-label"><span class="ai-dot"></span>오늘 공부 요약</div>
+      <div class="ai-result" id="timer-summary-result"></div>
+    </div>
+
+  </div>
+
+  <!-- ── 음성 탭 ── -->
+  <div class="page" id="page-voice">
+
+    <div class="card">
+      <div class="card-label">음성 녹음 → 텍스트</div>
+      <div class="record-btn-wrap">
+        <button class="record-btn" id="record-btn" onclick="toggleRecord()">🎙️</button>
+      </div>
+      <div class="record-hint" id="record-hint">버튼을 눌러 녹음 시작</div>
+      <textarea class="transcript-box" id="transcript" placeholder="녹음하면 여기에 텍스트로 변환돼요. 직접 입력도 가능해요."></textarea>
+    </div>
+
+    <div class="card">
+      <button class="btn btn-primary" onclick="summarizeTranscript()" style="width:100%;margin-bottom:0;">
+        ✨ AI로 요약하기
+      </button>
+    </div>
+
+    <!-- 음성 AI 요약 -->
+    <div class="card" id="voice-summary" style="display:none;">
+      <div class="card-label"><span class="ai-dot"></span>AI 요약</div>
+      <div class="ai-result" id="voice-summary-result"></div>
+    </div>
+
+  </div>
+
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
