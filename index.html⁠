@@ -1,0 +1,30 @@
+pip install pillow --break-system-packages -q && python3 << 'EOF'
+from PIL import Image, ImageDraw, ImageFont
+import os
+
+def make_icon(size):
+    img = Image.new('RGBA', (size, size), (0,0,0,0))
+    draw = ImageDraw.Draw(img)
+    # 둥근 사각형 배경 (베이지)
+    r = size // 6
+    draw.rounded_rectangle([0,0,size-1,size-1], radius=r, fill='#faf7f2')
+    # 이모지 대신 텍스트
+    font_size = size // 2
+    try:
+        font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', font_size)
+    except:
+        font = ImageFont.load_default()
+    text = '📚'
+    # fallback: 텍스트
+    draw.text((size//2, size//2), '공', fill='#c9a97a', font=font, anchor='mm')
+    img.save(f'/mnt/user-data/outputs/study-helper/icon-{size}.png')
+    print(f'icon-{size}.png 생성 완료')
+
+make_icon(192)
+make_icon(512)
+EOF
+{
+  "returncode" : 0,
+  "stdout" : "icon-192.png 생성 완료\nicon-512.png 생성 완료\n",
+  "stderr" : ""
+}
