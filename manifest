@@ -2,7 +2,7 @@
   "name": "자습 집중 도우미",
   "short_name": "자습",
   "description": "공부 목표, 타이머, AI 추천, 음성 녹음을 한 곳에",
-  "start_url": "/",
+  "start_url": "/jjj-/",
   "display": "standalone",
   "background_color": "#faf7f2",
   "theme_color": "#faf7f2",
