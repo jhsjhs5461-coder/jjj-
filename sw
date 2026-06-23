@@ -1,5 +1,6 @@
 const CACHE = 'study-helper-v1';
-const ASSETS = ['/', '/index.html', '/style.css', '/app.js'];
+const ASSETS = ['/jjj-/', '/jjj-/index.html', '/jjj-/style.css', '/jjj-/app.js'];
+
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
